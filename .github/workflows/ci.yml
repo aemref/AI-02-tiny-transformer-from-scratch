@@ -36,3 +36,4 @@ jobs:
           python -m tiny_transformer.experiments.autograd
           python -m tiny_transformer.experiments.losses
           python -m tiny_transformer.experiments.optimizers
+          python -m tiny_transformer.experiments.embeddings
