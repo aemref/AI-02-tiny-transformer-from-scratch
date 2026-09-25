@@ -1,4 +1,5 @@
 import pytest
+import torch
 
 from tiny_transformer.tokenizer import Vocabulary, tokenize
 
@@ -58,3 +59,42 @@ def test_decode_rejects_out_of_range_token_id(token_id: int) -> None:
 
     with pytest.raises(ValueError, match="outside the vocabulary"):
         vocabulary.decode([token_id])
+
+
+def test_batch_encoding_right_pads_and_marks_real_tokens() -> None:
+    vocabulary = Vocabulary.build(["small batch example"])
+    batch = vocabulary.encode_batch(["small example", "batch"], max_length=3)
+
+    assert batch.token_ids.tolist() == [[4, 3, 0], [2, 0, 0]]
+    assert batch.attention_mask.tolist() == [
+        [True, True, False],
+        [True, False, False],
+    ]
+    assert batch.original_lengths == (2, 1)
+    assert batch.token_ids.dtype == torch.long
+    assert batch.attention_mask.dtype == torch.bool
+
+
+def test_batch_encoding_truncates_but_preserves_original_length() -> None:
+    vocabulary = Vocabulary.build(["one two three four"])
+    batch = vocabulary.encode_batch(["one two three four"], max_length=2)
+
+    assert batch.token_ids.shape == (1, 2)
+    assert batch.attention_mask.all()
+    assert batch.original_lengths == (4,)
+
+
+@pytest.mark.parametrize(
+    ("texts", "max_length", "message"),
+    [
+        ([], 2, "texts must contain at least one item"),
+        (["text"], 0, "max_length must be at least 1"),
+    ],
+)
+def test_invalid_batch_contract_fails_clearly(
+    texts: list[str], max_length: int, message: str
+) -> None:
+    vocabulary = Vocabulary.build(["text"])
+
+    with pytest.raises(ValueError, match=message):
+        vocabulary.encode_batch(texts, max_length=max_length)

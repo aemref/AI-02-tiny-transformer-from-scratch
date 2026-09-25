@@ -6,10 +6,22 @@ from collections import Counter
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
+import torch
+from torch import Tensor
+
 
 def tokenize(text: str) -> list[str]:
     """Lowercase ``text`` and split it on runs of whitespace."""
     return text.lower().split()
+
+
+@dataclass(frozen=True)
+class BatchEncoding:
+    """Fixed-width token ids and a mask marking non-padding positions."""
+
+    token_ids: Tensor
+    attention_mask: Tensor
+    original_lengths: tuple[int, ...]
 
 
 @dataclass(frozen=True)
@@ -80,3 +92,26 @@ class Vocabulary:
         if any(token_id < 0 or token_id >= len(self) for token_id in token_ids):
             raise ValueError("token id is outside the vocabulary")
         return [self.tokens[token_id] for token_id in token_ids]
+
+    def encode_batch(self, texts: Sequence[str], *, max_length: int) -> BatchEncoding:
+        """Encode, truncate, and right-pad a non-empty batch to ``max_length``."""
+        if not texts:
+            raise ValueError("texts must contain at least one item")
+        if max_length < 1:
+            raise ValueError("max_length must be at least 1")
+
+        encoded = [self.encode(text) for text in texts]
+        original_lengths = tuple(len(token_ids) for token_ids in encoded)
+        rows: list[list[int]] = []
+        masks: list[list[bool]] = []
+        for token_ids in encoded:
+            truncated = token_ids[:max_length]
+            padding_size = max_length - len(truncated)
+            rows.append(truncated + [self.pad_id] * padding_size)
+            masks.append([True] * len(truncated) + [False] * padding_size)
+
+        return BatchEncoding(
+            token_ids=torch.tensor(rows, dtype=torch.long),
+            attention_mask=torch.tensor(masks, dtype=torch.bool),
+            original_lengths=original_lengths,
+        )
