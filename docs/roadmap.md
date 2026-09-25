@@ -13,10 +13,10 @@ outside this plan.
 
 ## 2. Tokenizer and embeddings
 
-- [ ] Build a small tokenizer and explicit vocabulary pipeline.
-- [ ] Implement token and positional embeddings.
-- [ ] Test shape, gradient, padding, unknown-token, and sequence-length cases.
-- [ ] Record measured OOV, padding, and sequence-length experiments.
+- [x] Build a small tokenizer and explicit vocabulary pipeline.
+- [x] Implement token and positional embeddings.
+- [x] Test shape, gradient, padding, unknown-token, and sequence-length cases.
+- [x] Record measured OOV, padding, and sequence-length experiments.
 
 ## 3. Self-attention
 

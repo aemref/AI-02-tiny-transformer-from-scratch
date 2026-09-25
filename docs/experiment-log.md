@@ -23,3 +23,31 @@ Verified observations:
 The observations above are deterministic learning examples on fixed, tiny
 inputs. They do not measure model accuracy, throughput, or generalization.
 
+## 2026-09-25 — tokenizer and embeddings
+
+Environment:
+
+- macOS arm64
+- Python 3.14.7
+- PyTorch 2.14.0
+
+Command:
+
+```bash
+python -m tiny_transformer.experiments.embeddings
+```
+
+Verified observations from the fixed three-row batch:
+
+- The vocabulary contained 8 entries, including reserved padding and unknown
+  tokens.
+- Encoding to a width of 4 produced a `3 x 4` id tensor and a `3 x 4 x 6`
+  embedding tensor.
+- The encoded batch contained 2 unknown-token ids and 6 padding ids.
+- One input was truncated because its original length was 5.
+- The absolute sum of all emitted padding vectors was `0.0`.
+- Backpropagation reached 4 token-table rows and all 4 used position rows.
+
+These observations cover tokenizer and embedding boundaries only. They do not
+measure language-model accuracy or claim that the chosen vocabulary is useful
+for a larger corpus.

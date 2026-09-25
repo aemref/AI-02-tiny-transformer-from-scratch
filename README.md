@@ -15,6 +15,7 @@ part of the model.
 | Reverse-mode differentiation | `tiny_transformer.experiments.autograd` | [Autograd](docs/concepts/autograd.md) |
 | Cross entropy from logits | `tiny_transformer.experiments.losses` | [Losses](docs/concepts/losses.md) |
 | SGD training step | `tiny_transformer.experiments.optimizers` | [Optimizers](docs/concepts/optimizers.md) |
+| Tokenizer and embeddings | `tiny_transformer.experiments.embeddings` | [Tokenizer and embeddings](docs/concepts/embeddings.md) |
 
 Each module prints JSON so its measured values can be inspected or captured by
 another tool. The first verified run is recorded in the
