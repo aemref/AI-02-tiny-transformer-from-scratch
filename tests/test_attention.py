@@ -1,7 +1,10 @@
 import pytest
 import torch
 
-from tiny_transformer.attention import scaled_dot_product_attention
+from tiny_transformer.attention import (
+    causal_attention_mask,
+    scaled_dot_product_attention,
+)
 
 
 def test_scaled_dot_product_attention_matches_manual_calculation() -> None:
@@ -117,3 +120,49 @@ def test_attention_rejects_non_floating_queries() -> None:
 
     with pytest.raises(TypeError, match="floating-point"):
         scaled_dot_product_attention(query, key, value)
+
+
+def test_causal_mask_has_the_expected_lower_triangular_structure() -> None:
+    mask = causal_attention_mask(4)
+
+    assert mask.dtype == torch.bool
+    torch.testing.assert_close(
+        mask,
+        torch.tensor(
+            [
+                [True, False, False, False],
+                [True, True, False, False],
+                [True, True, True, False],
+                [True, True, True, True],
+            ]
+        ),
+    )
+
+
+def test_causal_attention_prevents_future_values_from_changing_the_past() -> None:
+    query = torch.ones((1, 3, 2))
+    key = torch.ones((1, 3, 2))
+    values = torch.tensor([[[1.0], [2.0], [3.0]]])
+    changed_future = torch.tensor([[[1.0], [20.0], [30.0]]])
+    mask = causal_attention_mask(3)
+
+    baseline = scaled_dot_product_attention(
+        query,
+        key,
+        values,
+        attention_mask=mask,
+    )
+    changed = scaled_dot_product_attention(
+        query,
+        key,
+        changed_future,
+        attention_mask=mask,
+    )
+
+    torch.testing.assert_close(baseline.values[:, 0], changed.values[:, 0])
+    assert baseline.weights[0, 0].tolist() == [1.0, 0.0, 0.0]
+
+
+def test_causal_mask_rejects_empty_sequences() -> None:
+    with pytest.raises(ValueError, match="at least 1"):
+        causal_attention_mask(0)

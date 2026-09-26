@@ -17,6 +17,21 @@ class AttentionOutput:
     weights: Tensor
 
 
+def causal_attention_mask(
+    sequence_length: int,
+    *,
+    device: torch.device | str | None = None,
+) -> Tensor:
+    """Return a mask that lets each position attend only to itself and the past."""
+    if sequence_length < 1:
+        raise ValueError("sequence_length must be at least 1")
+    return torch.ones(
+        (sequence_length, sequence_length),
+        dtype=torch.bool,
+        device=device,
+    ).tril()
+
+
 def _validate_attention_inputs(query: Tensor, key: Tensor, value: Tensor) -> None:
     if query.ndim < 2 or key.ndim < 2 or value.ndim < 2:
         raise ValueError("query, key, and value must each have at least two dimensions")
