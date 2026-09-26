@@ -2,6 +2,7 @@ import pytest
 import torch
 
 from tiny_transformer.attention import (
+    MultiHeadSelfAttention,
     causal_attention_mask,
     scaled_dot_product_attention,
 )
@@ -166,3 +167,63 @@ def test_causal_attention_prevents_future_values_from_changing_the_past() -> Non
 def test_causal_mask_rejects_empty_sequences() -> None:
     with pytest.raises(ValueError, match="at least 1"):
         causal_attention_mask(0)
+
+
+def test_multi_head_attention_preserves_shape_and_gradients() -> None:
+    layer = MultiHeadSelfAttention(embedding_dim=8, num_heads=2)
+    inputs = torch.randn(3, 4, 8, requires_grad=True)
+
+    output = layer(inputs)
+    output.values.square().sum().backward()
+
+    assert output.values.shape == (3, 4, 8)
+    assert output.weights.shape == (3, 2, 4, 4)
+    torch.testing.assert_close(output.weights.sum(dim=-1), torch.ones((3, 2, 4)))
+    assert inputs.grad is not None
+    assert torch.count_nonzero(inputs.grad) > 0
+    assert all(parameter.grad is not None for parameter in layer.parameters())
+
+
+def test_multi_head_attention_combines_causal_and_padding_masks() -> None:
+    layer = MultiHeadSelfAttention(embedding_dim=4, num_heads=2)
+    inputs = torch.randn(2, 3, 4)
+    padding_mask = torch.tensor(
+        [[True, True, False], [True, True, True]],
+        dtype=torch.bool,
+    )
+
+    output = layer(inputs, padding_mask=padding_mask, causal=True)
+
+    assert torch.count_nonzero(torch.triu(output.weights, diagonal=1)) == 0
+    assert torch.count_nonzero(output.weights[0, :, :, 2]) == 0
+    torch.testing.assert_close(output.values[0, 2], torch.zeros(4))
+
+
+@pytest.mark.parametrize(
+    ("embedding_dim", "num_heads", "message"),
+    [
+        (0, 1, "embedding_dim"),
+        (4, 0, "num_heads"),
+        (5, 2, "divisible"),
+    ],
+)
+def test_multi_head_attention_rejects_invalid_configuration(
+    embedding_dim: int,
+    num_heads: int,
+    message: str,
+) -> None:
+    with pytest.raises(ValueError, match=message):
+        MultiHeadSelfAttention(embedding_dim, num_heads)
+
+
+def test_multi_head_attention_rejects_invalid_inputs_and_padding_masks() -> None:
+    layer = MultiHeadSelfAttention(embedding_dim=4, num_heads=2)
+
+    with pytest.raises(ValueError, match="batch x sequence x embedding"):
+        layer(torch.randn(3, 4))
+    with pytest.raises(ValueError, match="must be 4"):
+        layer(torch.randn(2, 3, 5))
+    with pytest.raises(TypeError, match="floating-point"):
+        layer(torch.ones((2, 3, 4), dtype=torch.long))
+    with pytest.raises(ValueError, match="batch x sequence"):
+        layer(torch.randn(2, 3, 4), padding_mask=torch.ones((3, 3), dtype=torch.bool))
