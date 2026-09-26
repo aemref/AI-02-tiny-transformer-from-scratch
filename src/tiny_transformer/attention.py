@@ -40,11 +40,27 @@ def scaled_dot_product_attention(
     query: Tensor,
     key: Tensor,
     value: Tensor,
+    *,
+    attention_mask: Tensor | None = None,
 ) -> AttentionOutput:
     """Compute attention with matrix multiplication, scaling, and softmax."""
     _validate_attention_inputs(query, key, value)
 
     scores = query @ key.transpose(-2, -1)
     scores = scores / sqrt(query.shape[-1])
+    if attention_mask is not None:
+        if attention_mask.dtype != torch.bool:
+            raise TypeError("attention_mask must use torch.bool dtype")
+        if attention_mask.device != scores.device:
+            raise ValueError("attention_mask must be on the same device as the inputs")
+        try:
+            attention_mask = torch.broadcast_to(attention_mask, scores.shape)
+        except RuntimeError as error:
+            raise ValueError(
+                "attention_mask must broadcast to the attention score shape"
+            ) from error
+        if (~attention_mask).all(dim=-1).any():
+            raise ValueError("attention_mask cannot hide every key for a query")
+        scores = scores.masked_fill(~attention_mask, -torch.inf)
     weights = torch.softmax(scores, dim=-1)
     return AttentionOutput(values=weights @ value, weights=weights)

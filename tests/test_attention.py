@@ -41,6 +41,52 @@ def test_attention_preserves_gradient_flow_to_every_input() -> None:
         assert torch.count_nonzero(tensor.grad) > 0
 
 
+def test_boolean_mask_excludes_keys_and_renormalizes_visible_weights() -> None:
+    query = torch.ones((1, 2, 2))
+    key = torch.ones((1, 3, 2))
+    value = torch.tensor([[[1.0], [10.0], [100.0]]])
+    mask = torch.tensor([[True, False, True], [False, True, False]])
+
+    output = scaled_dot_product_attention(
+        query,
+        key,
+        value,
+        attention_mask=mask,
+    )
+
+    torch.testing.assert_close(
+        output.weights,
+        torch.tensor([[[0.5, 0.0, 0.5], [0.0, 1.0, 0.0]]]),
+    )
+    torch.testing.assert_close(output.values, torch.tensor([[[50.5], [10.0]]]))
+
+
+@pytest.mark.parametrize(
+    ("mask", "exception", "message"),
+    [
+        (torch.ones((2, 2)), TypeError, "torch.bool"),
+        (torch.ones((4, 4), dtype=torch.bool), ValueError, "broadcast"),
+        (torch.zeros((2, 3), dtype=torch.bool), ValueError, "every key"),
+    ],
+)
+def test_attention_rejects_invalid_masks(
+    mask: torch.Tensor,
+    exception: type[Exception],
+    message: str,
+) -> None:
+    query = torch.ones((1, 2, 3))
+    key = torch.ones((1, 3, 3))
+    value = torch.ones((1, 3, 4))
+
+    with pytest.raises(exception, match=message):
+        scaled_dot_product_attention(
+            query,
+            key,
+            value,
+            attention_mask=mask,
+        )
+
+
 @pytest.mark.parametrize(
     ("query_shape", "key_shape", "value_shape", "message"),
     [
