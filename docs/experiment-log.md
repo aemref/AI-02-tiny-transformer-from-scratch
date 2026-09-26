@@ -51,3 +51,32 @@ Verified observations from the fixed three-row batch:
 These observations cover tokenizer and embedding boundaries only. They do not
 measure language-model accuracy or claim that the chosen vocabulary is useful
 for a larger corpus.
+
+## 2026-09-26 — self-attention
+
+Environment:
+
+- macOS arm64
+- Python 3.14.7
+- PyTorch 2.14.0
+
+Command:
+
+```bash
+python -m tiny_transformer.experiments.attention
+```
+
+Verified observations from three fixed two-dimensional representations:
+
+- The causal attention map had shape `3 x 3`, and every row summed to `1.0`.
+- The sum of all future-position weights above the diagonal was `0.0`.
+- Query rows placed their largest weight on `the`, `cat`, and `cat`,
+  respectively; the final row had an equal `0.4011120926797859` weight for
+  `cat` and `sat`, so `argmax` selected the earlier index.
+- The three context vectors were `[1.0, 0.0]`,
+  `[1.0, 0.6697615493266569]`, and
+  `[0.5988879073202141, 0.8022241853595719]`.
+
+This is deterministic contract evidence for normalization and masking, not a
+benchmark or an explanation of learned model behavior. See the
+[attention note](concepts/attention.md) for interpretation limits.

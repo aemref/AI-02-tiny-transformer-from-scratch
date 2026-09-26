@@ -20,10 +20,10 @@ outside this plan.
 
 ## 3. Self-attention
 
-- [ ] Implement scaled dot-product attention from tensor operations.
-- [ ] Add causal masking and multi-head attention.
-- [ ] Test shapes, masks, invalid inputs, and gradient flow.
-- [ ] Produce an attention map with interpretation limits.
+- [x] Implement scaled dot-product attention from tensor operations.
+- [x] Add causal masking and multi-head attention.
+- [x] Test shapes, masks, invalid inputs, and gradient flow.
+- [x] Produce an attention map with interpretation limits.
 
 ## 4. Training loop
 
