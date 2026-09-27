@@ -1,0 +1,24 @@
+tiny models make each tensor operation visible
+the model reads tokens from left to right
+attention connects each token to earlier context
+causal masks hide every future position
+embeddings turn token ids into learned vectors
+position vectors preserve the order of tokens
+residual paths carry information across layers
+normalization keeps hidden values well behaved
+the output layer predicts the next token
+cross entropy measures the prediction error
+gradient descent updates every learned parameter
+a small batch makes each training step inspectable
+fixed seeds make local experiments repeatable
+training loss describes the examples already seen
+validation loss checks examples held apart
+regularization can reduce reliance on one feature
+dropout removes random activations during training
+weight decay discourages unnecessarily large weights
+learning rates control the size of each update
+an excessive learning rate may skip useful solutions
+a tiny learning rate may improve too slowly
+clear configuration makes a result reproducible
+tests protect tensor shapes and masking rules
+measured evidence is stronger than an assumed result
