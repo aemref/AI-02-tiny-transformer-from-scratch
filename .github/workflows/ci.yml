@@ -38,3 +38,8 @@ jobs:
           python -m tiny_transformer.experiments.optimizers
           python -m tiny_transformer.experiments.embeddings
           python -m tiny_transformer.experiments.attention
+
+      - name: Reproduce training evidence
+        run: >-
+          python -m tiny_transformer.experiments.training
+          --output-dir "${{ runner.temp }}/training-evidence"
