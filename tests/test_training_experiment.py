@@ -1,6 +1,13 @@
+import json
+from pathlib import Path
+
 import torch
 
-from tiny_transformer.experiments.training import run_training_experiments
+from tiny_transformer.experiments.training import (
+    render_loss_curves,
+    run_training_experiments,
+    write_experiment_artifacts,
+)
 
 
 def test_training_experiment_reports_three_controlled_runs() -> None:
@@ -37,3 +44,25 @@ def test_training_experiment_is_repeatable_and_preserves_rng() -> None:
 
     assert first == second
     torch.testing.assert_close(actual, expected)
+
+
+def test_loss_curve_renderer_draws_each_measured_series() -> None:
+    summary = run_training_experiments(steps=1)
+
+    svg = render_loss_curves(summary)
+
+    assert svg.startswith('<svg xmlns="http://www.w3.org/2000/svg"')
+    assert svg.count('class="train" points=') == 3
+    assert svg.count('class="validation" points=') == 3
+    assert "unregularized_overfit" in svg
+
+
+def test_artifact_writer_persists_json_and_svg(
+    tmp_path: Path,
+) -> None:
+    summary = run_training_experiments(steps=1)
+
+    json_path, svg_path = write_experiment_artifacts(summary, tmp_path / "evidence")
+
+    assert json.loads(json_path.read_text()) == summary
+    assert svg_path.read_text().endswith("</svg>\n")
