@@ -80,3 +80,34 @@ Verified observations from three fixed two-dimensional representations:
 This is deterministic contract evidence for normalization and masking, not a
 benchmark or an explanation of learned model behavior. See the
 [attention note](concepts/attention.md) for interpretation limits.
+
+## 2026-09-27 — language-model training
+
+Environment:
+
+- macOS arm64
+- Python 3.14.7
+- PyTorch 2.14.0
+
+Command:
+
+```bash
+python -m tiny_transformer.experiments.training --output-dir docs/experiments
+```
+
+Verified observations from 60 full-batch updates on the fixed corpus split:
+
+| Configuration | Initial train | Final train | Best validation (step) | Final validation |
+| --- | ---: | ---: | ---: | ---: |
+| Unregularized, learning rate `0.03` | 12.0777 | 0.0320 | 8.9956 (12) | 12.2000 |
+| Dropout `0.2`, weight decay `0.02` | 12.0777 | 0.0437 | 9.0013 (13) | 12.0564 |
+| Unregularized, learning rate `0.003` | 12.0777 | 1.6941 | 9.6391 (60) | 9.6391 |
+
+The high-rate runs fit the six training documents while validation loss began
+rising after steps 12–13: a deliberate, small-data overfitting demonstration.
+The chosen regularization did not improve best validation loss, although its
+final validation loss was slightly lower. The lower-rate run was still
+improving at step 60, so these results do not establish an optimal learning
+rate. Full precision curves and configurations are in
+[`training-results.json`](experiments/training-results.json), with a rendered
+view in [`training-loss-curves.svg`](experiments/training-loss-curves.svg).

@@ -27,10 +27,10 @@ outside this plan.
 
 ## 4. Training loop
 
-- [ ] Train a tiny language model on a small, licensed local text dataset.
-- [ ] Provide a one-command deterministic training path.
-- [ ] Run and record overfitting, regularization, and learning-rate experiments.
-- [ ] Publish the configuration, loss curves, and reproduction commands.
+- [x] Train a tiny language model on a small, licensed local text dataset.
+- [x] Provide a one-command deterministic training path.
+- [x] Run and record overfitting, regularization, and learning-rate experiments.
+- [x] Publish the configuration, loss curves, and reproduction commands.
 
 ## 5. Release
 

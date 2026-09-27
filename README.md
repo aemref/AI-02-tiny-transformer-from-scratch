@@ -17,6 +17,7 @@ part of the model.
 | SGD training step | `tiny_transformer.experiments.optimizers` | [Optimizers](docs/concepts/optimizers.md) |
 | Tokenizer and embeddings | `tiny_transformer.experiments.embeddings` | [Tokenizer and embeddings](docs/concepts/embeddings.md) |
 | Causal self-attention | `tiny_transformer.experiments.attention` | [Self-attention](docs/concepts/attention.md) |
+| Language-model training | `tiny_transformer.experiments.training` | [Training experiments](docs/concepts/training.md) |
 
 Each module prints JSON so its measured values can be inspected or captured by
 another tool. The first verified run is recorded in the
@@ -40,6 +41,16 @@ Run one experiment directly, for example:
 ```bash
 python -m tiny_transformer.experiments.optimizers
 ```
+
+Run all three deterministic training configurations and regenerate their JSON
+evidence and SVG loss curves with one command:
+
+```bash
+python -m tiny_transformer.experiments.training --output-dir docs/experiments
+```
+
+The bundled 24-document synthetic corpus is released under CC0; its provenance
+and limitations are recorded beside the data in `src/tiny_transformer/data`.
 
 ## Scope
 
