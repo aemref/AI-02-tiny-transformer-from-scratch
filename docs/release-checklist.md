@@ -38,9 +38,11 @@ python -m pip wheel --no-deps --no-build-isolation --wheel-dir dist .
 git diff --check
 ```
 
-Compare the regenerated training JSON and SVG byte-for-byte with the tracked
-artifacts. Inspect the wheel contents and confirm that Python modules, corpus,
-and corpus license are included. Finish with a clean worktree.
+Compare regenerated JSON structure exactly and floating-point values within the
+documented absolute tolerance of `1e-5`; compare the rendered SVG byte-for-byte.
+This permits platform-level PyTorch drift while rejecting material measurement
+changes. Inspect the wheel contents and confirm that Python modules, corpus, and
+corpus license are included. Finish with a clean worktree.
 
 ## Release policy
 

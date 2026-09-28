@@ -43,7 +43,8 @@ jobs:
         run: |
           python -m tiny_transformer.experiments.training \
             --output-dir "${{ runner.temp }}/training-evidence"
-          diff docs/experiments/training-results.json \
+          python -m tiny_transformer.experiments.verify_training \
+            docs/experiments/training-results.json \
             "${{ runner.temp }}/training-evidence/training-results.json"
           diff docs/experiments/training-loss-curves.svg \
             "${{ runner.temp }}/training-evidence/training-loss-curves.svg"
