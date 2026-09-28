@@ -14,8 +14,8 @@ contract. The release tag is created only after every gate passes from a clean
   limitations, and reproduction commands are present.
 - [x] The local demo retrains a disclosed configuration and emits auditable JSON.
 - [x] Release readiness fails closed on version, corpus, evidence, and documents.
-- [ ] Clean-clone verification passes with the commands below.
-- [ ] Local `main`, `origin/main`, the annotated tag, and GitHub Release agree.
+- [x] Clean-clone verification passes with the commands below.
+- [x] Local `main`, `origin/main`, the annotated tag, and GitHub Release agree.
 
 ## Clean-clone verification
 

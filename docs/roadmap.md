@@ -36,5 +36,5 @@ outside this plan.
 
 - [x] Write the model card and technical architecture document.
 - [x] Add an auditable local demo and cross-project quality review.
-- [ ] Run every release gate from a clean clone.
-- [ ] Publish an immutable `v1.0.0` tag and GitHub Release.
+- [x] Run every release gate from a clean clone.
+- [x] Publish an immutable `v1.0.0` tag and GitHub Release.
