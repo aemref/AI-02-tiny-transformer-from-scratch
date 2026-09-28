@@ -40,6 +40,30 @@ jobs:
           python -m tiny_transformer.experiments.attention
 
       - name: Reproduce training evidence
+        run: |
+          python -m tiny_transformer.experiments.training \
+            --output-dir "${{ runner.temp }}/training-evidence"
+          diff docs/experiments/training-results.json \
+            "${{ runner.temp }}/training-evidence/training-results.json"
+          diff docs/experiments/training-loss-curves.svg \
+            "${{ runner.temp }}/training-evidence/training-loss-curves.svg"
+
+      - name: Run auditable local demo
         run: >-
-          python -m tiny_transformer.experiments.training
-          --output-dir "${{ runner.temp }}/training-evidence"
+          python -m tiny_transformer.experiments.demo
+          --prompt "attention uses"
+          --tokens 6
+
+      - name: Verify release evidence
+        run: python -m tiny_transformer.release
+
+      - name: Compile Python modules
+        run: python -m compileall -q src tests
+
+      - name: Build wheel without dependency downloads
+        run: >-
+          python -m pip wheel
+          --no-deps
+          --no-build-isolation
+          --wheel-dir dist
+          .
