@@ -16,6 +16,7 @@ dependencies = ["numpy>=1.26,<3", "torch>=2.2,<3"]
 dev = ["pytest>=8,<9", "ruff>=0.8,<1"]
 
 [project.scripts]
+demo-tiny-transformer = "tiny_transformer.experiments.demo:main"
 train-tiny-transformer = "tiny_transformer.experiments.training:main"
 
 [tool.pytest.ini_options]
