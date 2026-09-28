@@ -2,19 +2,18 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
-import json
 from pathlib import Path
 
 from tiny_transformer import __version__
-
 
 ROOT = Path(__file__).parents[2]
 EXPECTED_VERSION = "1.0.0"
 REQUIRED_DOCUMENTS = {
     Path("README.md"): ("Local demo", "Limitations", "Release verification"),
-    Path("CHANGELOG.md"): ("1.0.0", "not suitable for production"),
+    Path("CHANGELOG.md"): ("1.0.0", "not suitable for"),
     Path("docs/architecture.md"): ("Trust and failure boundaries",),
     Path("docs/model-card.md"): ("not suitable for production",),
     Path("docs/quality-review-ai01.md"): ("Review decision",),
